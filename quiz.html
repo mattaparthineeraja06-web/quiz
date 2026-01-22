@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+
+        .quiz-container {
+            width: 500px;
+            background: #fff;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .timer {
+            text-align: right;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .question {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+
+        .options label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            font-size: 14px;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="timer" id="timer">20:00</div>
+    <h2>Online Quiz</h2>
+
+    <div id="quiz">
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+    </div>
+
+    <div class="buttons">
+        <button id="prevBtn" onclick="prevQuestion()">Previous</button>
+        <button id="nextBtn" onclick="nextQuestion()">Next</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        { q: "HTML stands for?", a: ["Hyper Text Markup Language","High Text Machine Language","Hyperlinks Text Mark Language","None"], c: 0 },
+        { q: "CSS is used for?", a: ["Logic","Styling","Database","Structure"], c: 1 },
+        { q: "JavaScript is a?", a: ["Markup","Styling","Programming","Database"], c: 2 },
+        { q: "Which is not a JS datatype?", a: ["String","Number","Boolean","Float"], c: 3 },
+        { q: "Which symbol for ID?", a: ["#",".","@","$"], c: 0 },
+        { q: "Which symbol for class?", a: ["#",".","@","$"], c: 1 },
+        { q: "HTML file extension?", a: [".ht",".html",".hml",".xml"], c: 1 },
+        { q: "CSS file extension?", a: [".cs",".css",".style",".scss"], c: 1 },
+        { q: "JS file extension?", a: [".java",".js",".javascript",".jsx"], c: 1 },
+        { q: "Which keyword declares variable?", a: ["var","int","string","let"], c: 0 },
+        { q: "Which loop is correct?", a: ["for","loop","repeat","foreach"], c: 0 },
+        { q: "DOM stands for?", a: ["Data Object Model","Document Object Model","Digital Object Model","None"], c: 1 },
+        { q: "Which event on click?", a: ["onchange","onclick","onmouse","onsubmit"], c: 1 },
+        { q: "Which is frontend?", a: ["PHP","Node","HTML","MySQL"], c: 2 }
+    ];
+
+    let current = 0;
+    let answers = new Array(quizData.length).fill(null);
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function loadQuestion() {
+        const qData = quizData[current];
+        questionEl.textContent = `${current + 1}. ${qData.q}`;
+        optionsEl.innerHTML = "";
+
+        qData.a.forEach((opt, i) => {
+            const checked = answers[current] === i ? "checked" : "";
+            optionsEl.innerHTML += `
+                <label>
+                    <input type="radio" name="option" value="${i}" ${checked}
+                    onclick="answers[${current}] = ${i}">
+                    ${opt}
+                </label>
+            `;
+        });
+
+        prevBtn.disabled = current === 0;
+        nextBtn.textContent = current === quizData.length - 1 ? "Submit" : "Next";
+    }
+
+    function nextQuestion() {
+        if (current === quizData.length - 1) {
+            submitQuiz();
+        } else {
+            current++;
+            loadQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        current--;
+        loadQuestion();
+    }
+
+    function submitQuiz() {
+        let score = 0;
+        quizData.forEach((q, i) => {
+            if (answers[i] === q.c) score++;
+        });
+
+        document.querySelector(".quiz-container").innerHTML =
+            `<div class="result">
+                <h2>Quiz Completed</h2>
+                <p>Your Score: ${score} / ${quizData.length}</p>
+            </div>`;
+    }
+
+    /* Timer (20 Minutes) */
+    let time = 20 * 60;
+    const timerEl = document.getElementById("timer");
+
+    setInterval(() => {
+        if (time <= 0) {
+            submitQuiz();
+            return;
+        }
+        time--;
+        let min = Math.floor(time / 60);
+        let sec = time % 60;
+        timerEl.textContent = `${min}:${sec < 10 ? "0" : ""}${sec}`;
+    }, 1000);
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
